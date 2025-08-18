@@ -76,9 +76,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Zip Lambda function
-        run: zip -j lambda_function.zip lambda_function.py
-
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
