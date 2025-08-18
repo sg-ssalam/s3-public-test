@@ -1,0 +1,187 @@
+# .github/workflows/sg-it-oooh-runnning-ec2-instances.yml
+# This GitHub Actions workflow is designed to manage the Terraform configuration for the sg-it-oooh-runnning-ec2-instances project.
+# It initializes Terraform, validates the configuration, plans changes, and applies them when changes are pushed to the main branch.
+# The workflow is triggered on pushes to the main branch and pull requests targeting the main branch.
+# It also supports manual triggering via workflow_dispatch.
+# The workflow uses AWS credentials stored in GitHub secrets for authentication and requires the Terraform API token for operations.
+# The workflow is designed to ensure that the ci/cd pipeline is managed in a consistent and controlled manner, with detailed comments on pull requests for visibility into the changes being made.
+
+name: ' Terraform | AWS | OIDC | sg-it-oooh-runnning-ec2-instances '
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  issues: write
+  security-events: write
+  repository-projects: write
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: null
+    # Allows manual triggering
+jobs:
+  iac-sast:
+    name: IaC SAST Scan with Trivy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner in IaC mode
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'config'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Post Trivy PR Comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+         github-token: ${{ secrets.GITHUB_TOKEN }}
+         script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('$/trivy-results.txt', 'utf8');
+            const body = `### 🛡️ IaC SAST Scan with Trivy\n\`\`\`\n${report}\n\`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });  
+
+  terraform-init-and-plan:
+    name: Terraform Init and Plan
+    needs: iac-sast
+    # This job is responsible for managing the Terraform configuration for the sg-it-oooh-runnning-ec2-instances project.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Zip Lambda function
+        run: zip -j lambda_function.zip lambda_function.py
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        run: terraform init --upgrade
+
+      - name: Terraform Fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate 
+
+      - name: Terraform Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -input=false -out=tfplan
+
+        
+      - name: Update Pull Request
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: |-
+            terraform
+            ${{ steps.plan.outputs.stdout }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            Terraform plan artifact is [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts).
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: failure()
+        run: exit 1
+
+     
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform-init-and-plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init --upgrade
+
+      - name: Terraform Apply
+        run: terraform apply -input=false -auto-approve 
+
