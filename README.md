@@ -1,22 +1,58 @@
-# Project Overview
+# Terraform Infrastructure Setup
 
-This project includes a visual diagram to illustrate its architecture or workflow.
+This repository contains Terraform configuration files for provisioning and managing infrastructure resources.  
+It also includes a visual architecture diagram (`diagram.drawio`) for better understanding of the setup.
 
-## Diagram
+---
 
-The following diagram is provided as a `.drawio` file for easy editing and viewing:
+## 📘 Overview
 
-- [diagram.drawio](diagram.drawio)
+- **Infrastructure as Code (IaC)** using Terraform  
+- **Automated workflow** with GitHub Actions (`.github/workflows/terraform.yml`)  
+- **Architecture diagram** created with Draw.io for visual reference
 
-You can open this file using [diagrams.net](https://app.diagrams.net/) (Draw.io) either locally or online.
+---
 
-## How to View the Diagram
+## 🧩 Repository Structure
 
-1. Download or clone this repository.
-2. Open the `diagram.drawio` file with [diagrams.net](https://app.diagrams.net/).
-3. You can visualize or update the architecture as needed.
+| Path | Description |
+|------|--------------|
+| `.github/workflows/terraform.yml` | CI/CD pipeline for Terraform plan and apply |
+| `main.tf` | Main Terraform configuration file |
+| `diagram.drawio` | Draw.io architecture diagram |
+| `README.md` | Project documentation |
 
-## Additional Information
+---
 
-- Please refer to the diagram for a high-level overview.
-- For any questions or contributions, feel free to open an issue or submit a pull request.
+## 🖼️ Architecture Diagram
+
+![Architecture Diagram](./diagram.drawio)
+
+> **Note:**  
+> GitHub does not render `.drawio` files directly.  
+> You can view or edit this diagram in **diagrams.net** using the link below:
+
+[🟦 Open in diagrams.net](https://app.diagrams.net/?url=https://raw.githubusercontent.com/sg-ssalam/REPO-NAME/main/diagram.drawio)
+
+*(Replace `REPO-NAME` in the link with your actual repository name.)*
+
+---
+
+## ⚙️ Terraform Workflow
+
+The GitHub Actions workflow (`terraform.yml`) automates:
+1. **Initialization** – `terraform init`
+2. **Validation** – `terraform validate`
+3. **Plan generation** – `terraform plan`
+4. **Apply (optional)** – automatic apply on main branch or with approval
+
+This ensures consistent, version-controlled infrastructure changes.
+
+---
+
+## 🚀 Usage
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/sg-ssalam/REPO-NAME.git
+   cd REPO-NAME
