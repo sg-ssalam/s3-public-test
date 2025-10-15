@@ -26,7 +26,7 @@ It also includes a visual architecture diagram (`diagram.drawio`) for better und
 
 ## 🖼️ Architecture Diagram
 
-![Architecture Diagram](./diagram.svg)
+![Organisation Architecture Diagram](./diagram.svg)
 
 > **Note:**  
 > GitHub does not render `.drawio` files directly.  
@@ -34,7 +34,15 @@ It also includes a visual architecture diagram (`diagram.drawio`) for better und
 
 [🟦 Open in diagrams.net](https://app.diagrams.net/?url=https://raw.githubusercontent.com/sg-ssalam/s3-public-test/main/diagram.drawio)
 
-*(Replace `REPO-NAME` in the link with your actual repository name.)*
+## 🖼️ Management Architecture Diagram
+
+![Organisation Architecture Diagram](./diagram.drawio.svg
+
+> **Note:**  
+> GitHub does not render `.drawio` files directly.  
+> You can view or edit this diagram in **diagrams.net** using the link below:
+
+[🟦 Open in diagrams.net](https://app.diagrams.net/?url=https://raw.githubusercontent.com/sg-ssalam/s3-public-test/main/diagram.drawio)
 
 ---
 
