@@ -36,7 +36,7 @@ It also includes a visual architecture diagram (`diagram.drawio`) for better und
 
 ## 🖼️ Management Architecture Diagram
 
-![Organisation Architecture Diagram](./diagram.drawio.svg
+![Organisation Architecture Diagram](./diagram.drawio.svg)
 
 > **Note:**  
 > GitHub does not render `.drawio` files directly.  
