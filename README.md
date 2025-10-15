@@ -29,7 +29,6 @@ It also includes a visual architecture diagram (`diagram.drawio`) for better und
 ![Organisation Architecture Diagram](./diagram.svg)
 
 > **Note:**  
-> GitHub does not render `.drawio` files directly.  
 > You can view or edit this diagram in **diagrams.net** using the link below:
 
 [🟦 Open in diagrams.net](https://app.diagrams.net/?url=https://raw.githubusercontent.com/sg-ssalam/s3-public-test/main/diagram.drawio)
@@ -39,7 +38,6 @@ It also includes a visual architecture diagram (`diagram.drawio`) for better und
 ![Organisation Architecture Diagram](./diagram.drawio.svg)
 
 > **Note:**  
-> GitHub does not render `.drawio` files directly.  
 > You can view or edit this diagram in **diagrams.net** using the link below:
 
 [🟦 Open in diagrams.net](https://app.diagrams.net/?url=https://raw.githubusercontent.com/sg-ssalam/s3-public-test/main/diagram.drawio)
